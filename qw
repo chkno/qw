@@ -2,6 +2,7 @@
 
 # Quantified Writer
 # Graph stats as you edit a document
+# https://github.com/chkno/qw
 
 f=$1
 
