@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Quantified Writer
 # Graph stats as you edit a document
