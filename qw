@@ -18,12 +18,12 @@ function get_size() {
   done
 }
 
-{
-  initial_size=0
-  if [[ -e "$f" ]];then
-    initial_size=$(get_size "$f")
-  fi
+initial_size=0
+if [[ -e "$f" ]];then
+  initial_size=$(get_size "$f")
+fi
 
+{
   # Wait for "$EDITOR $f" to appear so we can grab its pid.
   # This is a lame way to do this, but vi doesn't like being started
   # in the background and then foregrounded to get this via $!.
@@ -93,3 +93,5 @@ EOF
 } | gnuplot 2>>"$tmpdir/log" &
 
 $EDITOR "$f"
+
+echo "File grew by $(($(get_size "$f") - initial_size)) bytes" >&2
