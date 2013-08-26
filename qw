@@ -30,13 +30,13 @@ function get_size() {
   until [[ "$editor_pid" ]];do
     editor_pid=$(ps a | fgrep "$EDITOR $f" | fgrep -v fgrep | awk '{ print $1 }')
     echo "Waiting for editor to start" 2>>"$tmpdir/log"
-    sleep 1
+    sleep .1
   done
 
   # Wait for the file to appear
   until [[ -f "$f" ]];do
     echo "Waiting for file to appear" 2>>"$tmpdir/log"
-    sleep 1
+    sleep .1
   done
 
   start_time=$(date +%s)
