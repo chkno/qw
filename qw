@@ -1,0 +1,95 @@
+#!/bin/sh
+
+# Quantified Writer
+# Graph stats as you edit a document
+
+f=$1
+
+tmpdir=$(mktemp -d)  # intentionally not cleaned up; this is a prototype
+echo "Stats going in $tmpdir" >&2
+
+function get_size() {
+  for attempt in try this four times;do
+    if size=$(find "$1" -printf "%s" 2>>"$tmpdir/log");then
+      echo "$size"
+      return
+    fi
+    sleep .1  # Give $EDITOR time to put the file back.
+  done
+}
+
+{
+  initial_size=0
+  if [[ -e "$f" ]];then
+    initial_size=$(get_size "$f")
+  fi
+
+  # Wait for "$EDITOR $f" to appear so we can grab its pid.
+  # This is a lame way to do this, but vi doesn't like being started
+  # in the background and then foregrounded to get this via $!.
+  until [[ "$editor_pid" ]];do
+    editor_pid=$(ps a | fgrep "$EDITOR $f" | fgrep -v fgrep | awk '{ print $1 }')
+    echo "Waiting for editor to start" 2>>"$tmpdir/log"
+    sleep 1
+  done
+
+  # Wait for the file to appear
+  until [[ -f "$f" ]];do
+    echo "Waiting for file to appear" 2>>"$tmpdir/log"
+    sleep 1
+  done
+
+  start_time=$(date +%s)
+
+  have_issued_plot=false
+  while sleep 1 && [[ -e "/proc/$editor_pid" ]]; do
+    now=$(date +%s)
+    size=$(get_size "$f")
+    if [[ ! "$size" ]];then
+      continue
+    fi
+    echo "$now $size" >> "$tmpdir/size"
+    tail -n 150 "$tmpdir/size" \
+      | awk -vnow="$now" -vsize="$size" -vtmpdir="$tmpdir" '
+          function go(desired_interval) {
+            actual_interval = now - $1
+            rate = (size - $2) / actual_interval
+            results[desired_interval] = now " " rate
+          }
+          now - $1 >=  30 { go( 30) }
+          now - $1 >= 120 { go(120) }
+          END {
+            for (interval in results) {
+              print results[interval] >> tmpdir "/" interval
+            }
+          }'
+    if $have_issued_plot; then
+      echo "replot"
+    else
+      xusing="((\$1 - $start_time)/60)"
+      cat <<EOF
+         set terminal wxt noraise
+         set autoscale fix
+         set key outside below
+         set grid
+         set ytics nomirror
+         set y2tics auto
+         set style data lines
+         plot [] [0:5] \
+           "$tmpdir/size" using $xusing:(\$2 - $initial_size) title "Size" axes x1y2 lw 2, \
+           "$tmpdir/30" using $xusing:2 title "30-second average" lw 2, \
+           "$tmpdir/120" using $xusing:2 title "2-minute average" lw 2
+EOF
+      have_issued_plot=true
+    fi
+  done
+  cat << EOF
+    set terminal png size 1280,400
+    set output "$tmpdir/summary.png"
+    replot
+    set output "$HOME/qw/$start_time.png"
+    replot
+EOF
+} | gnuplot 2>>"$tmpdir/log" &
+
+$EDITOR "$f"
