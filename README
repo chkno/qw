@@ -1,0 +1,1 @@
+Quantified Writer is a hacky shell script that wraps $EDITOR and gives you a real-time graph of your writing performance, including moving-average change rates.
