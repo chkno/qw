@@ -85,11 +85,12 @@ EOF
       have_issued_plot=true
     fi
   done
+  mkdir -p "$HOME/.qw"
   cat << EOF
     set terminal png size 1280,400
     set output "$tmpdir/summary.png"
     replot
-    set output "$HOME/qw/$start_time.png"
+    set output "$HOME/.qw/$start_time.png"
     replot
 EOF
 } | gnuplot 2>>"$tmpdir/log" &
