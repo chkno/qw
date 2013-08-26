@@ -78,9 +78,9 @@ fi
          set y2tics auto
          set style data lines
          plot [] [0:5] \
-           "$tmpdir/size" using $xusing:(\$2 - $initial_size) title "Size" axes x1y2 lw 2, \
-           "$tmpdir/30" using $xusing:2 title "30-second average" lw 2, \
-           "$tmpdir/120" using $xusing:2 title "2-minute average" lw 2
+           "$tmpdir/size" using $xusing:(\$2 - $initial_size) title "Size" axes x1y2 lw 3, \
+           "$tmpdir/30" using $xusing:2 title "30-second average" lw 3, \
+           "$tmpdir/120" using $xusing:2 title "2-minute average" lw 3
 EOF
       have_issued_plot=true
     fi
