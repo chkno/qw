@@ -73,7 +73,7 @@ fi
          set tmargin .2
          set autoscale fix
          unset key
-         set grid rgb "#999999"
+         set grid lc rgb "#999999"
          set ytics nomirror
          set y2tics auto
          set style data lines
