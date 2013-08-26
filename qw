@@ -68,10 +68,12 @@ fi
     else
       xusing="((\$1 - $start_time)/60)"
       cat <<EOF
-         set terminal wxt noraise
+         set terminal x11 noraise
+         set border lw 0
+         set tmargin .2
          set autoscale fix
-         set key outside below
-         set grid
+         unset key
+         set grid rgb "#999999"
          set ytics nomirror
          set y2tics auto
          set style data lines
