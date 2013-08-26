@@ -41,7 +41,9 @@ fi
   done
 
   start_time=$(date +%s)
+  start_time_pretty=$(date +%F-%T)
 
+  # Maintain graph
   have_issued_plot=false
   while sleep 1 && [[ -e "/proc/$editor_pid" ]]; do
     now=$(date +%s)
@@ -86,12 +88,16 @@ EOF
       have_issued_plot=true
     fi
   done
+
+  # Save final copy
+  end_time=$(date +%s)
+  elapsed_time=$((end_time - start_time))
   mkdir -p "$HOME/.qw"
   cat << EOF
     set terminal png size 1280,400
     set output "$tmpdir/summary.png"
     replot
-    set output "$HOME/.qw/$start_time.png"
+    set output "$HOME/.qw/$start_time_pretty,$elapsed_time.png"
     replot
 EOF
 } | gnuplot 2>>"$tmpdir/log" &
