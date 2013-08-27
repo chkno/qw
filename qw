@@ -92,12 +92,14 @@ EOF
   # Save final copy
   end_time=$(date +%s)
   elapsed_time=$((end_time - start_time))
+  final_size=$(get_size "$f")
+  delta_size=$((final_size - initial_size))
   mkdir -p "$HOME/.qw"
   cat << EOF
     set terminal png size 1280,400
     set output "$tmpdir/summary.png"
     replot
-    set output "$HOME/.qw/$start_time_pretty,$elapsed_time.png"
+    set output "$HOME/.qw/$start_time_pretty,$elapsed_time,$delta_size.png"
     replot
 EOF
 } | gnuplot 2>>"$tmpdir/log" &
